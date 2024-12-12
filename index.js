@@ -8,6 +8,9 @@ connection()
 const userRouter = require('./routes/user')
 app.use(userRouter)
 
+const categoryRouter= require('./routes/category');
+app.use(categoryRouter)
+
 app.get('/', (req, res) => {
   res.send('Hello World!')
 })
