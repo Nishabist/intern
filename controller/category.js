@@ -67,14 +67,28 @@ try {
 
 const listCategory = async(req,res)=>{
     try {
-        const categories = await Category.find();
+        const page = parseInt(req.query.page) || 1;       
+        const limit = parseInt(req.query.limit) || 10;    
+        const sortOrder = req.query.sortOrder === "desc" ? -1 : 1;
+
+        const skip = (page - 1) * limit;
+
+        const categories = await Category.find().sort({ createdAt: sortOrder }).skip(skip).limit(limit);  
 
         if (categories.length === 0) {
             return res.status(404).json({ msg: "No categories found" });
         }
-
-       
-        res.json({ msg: "Categories retrieved successfully", data: categories });
+        const totalCategories = await Category.countDocuments();
+        res.json({
+            msg: "Categories retrieved successfully",
+            data: categories,
+            pagination: {
+                total: totalCategories,
+                page,
+                limit,
+                pages: Math.ceil(totalCategories / limit)
+            }
+        });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
